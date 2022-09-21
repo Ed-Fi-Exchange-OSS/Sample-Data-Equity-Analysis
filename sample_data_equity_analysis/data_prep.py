@@ -51,16 +51,48 @@ COUNT_SCHOOL = "SELECT count(1) FROM analytics.StudentSchoolDemographicsBridge"
 COUNT_LEA = "SELECT count(1) FROM analytics.StudentLocalEducationAgencyDemographicsBridge"
 
 def run_prep_file(adapter: Adapter) -> None:
+    """
+    Installs temporary tables in the `edfi_dei` schema.
+
+    Parameters
+    ----------
+    adapter: Adapter
+        An MSSQL adapter
+    """
     adapter.execute_script(
         [CREATE_SCHEMA, DROP_LEA_STUDENTS, DROP_SCHOOL_STUDENTS, read_prep_sql_file()]
     )
 
 
 def cleanup_database(adapter: Adapter) -> None:
+    """
+    Deletes temporary tables and the `edfi_dei` schema itself.
+
+    Parameters
+    ----------
+    adapter: Adapter
+        An MSSQL adapter
+    """
     adapter.execute_script([DROP_LEA_STUDENTS, DROP_SCHOOL_STUDENTS, DROP_SCHEMA])
 
 def get_school_demographics_count(adapter: Adapter) -> int:
+    """
+    Gets the count of all School Demographics rows.
+
+    Parameters
+    ----------
+    adapter: Adapter
+        An MSSQL adapter
+    """
     return adapter.get_int(COUNT_SCHOOL)
 
 def get_lea_demographics_count(adapter: Adapter) -> int:
+    """
+    Gets the count of all Local Education Agency Demographics rows.
+
+    Parameters
+    ----------
+    adapter: Adapter
+        An MSSQL adapter
+    """
     return adapter.get_int(COUNT_LEA)

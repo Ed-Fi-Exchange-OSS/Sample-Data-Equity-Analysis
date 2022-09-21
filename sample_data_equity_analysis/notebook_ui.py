@@ -133,6 +133,9 @@ def _attach_on_cleanup_click(output: widgets.Output) -> Callable[[Any], None]:
 
 
 def setup_database_prep() -> None:
+    """
+    Configures the user interface for the database setup cell.
+    """
     log_message("## Prepare Database for Analysis")
     log_message(
         "Enter database connectivity information below and click the Prepare button "
@@ -204,6 +207,9 @@ are:</p>
 
 
 def setup_analysis_options() -> None:
+    """
+    Configures the user interface for the "analysis" cell.
+    """
     log_message("## Choose What to Analyze")
 
     tip = f"""
@@ -239,6 +245,9 @@ LEA** demographic records.
 
 
 def setup_cleanup() -> None:
+    """
+    Configures the user interface for the "cleanup" cell.
+    """
     log_message("## Cleanup")
     log_message(
         "Click the button below to remove the two temporary tables, `edfi_dei.leaStudents` "

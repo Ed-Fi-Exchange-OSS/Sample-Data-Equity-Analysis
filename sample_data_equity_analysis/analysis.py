@@ -32,6 +32,13 @@ MEASURE_ATTENDANCE = "AttendanceRate"
 MEASURE_DISCIPLINE = "NumberDisciplineIncidents"
 MEASURE_COURSE_PERF = "AverageGrade"
 
+DEMOGRAPHIC_RACE = "Race"
+DEMOGRAPHIC_LATINX = "IsHispanic"
+DEMOGRAPHIC_ENGLISH = "LimitedEnglishProficiency"
+DEMOGRAPHIC_SEX = "Sex"
+DEMOGRAPHIC_DISABILITY = "Disability"
+DEMOGRAPHIC_LANGUAGE = "Language"
+DEMOGRAPHIC_TRIBAL = "TribalAffiliation"
 
 def _get_lea_students(adapter: Adapter) -> pd.DataFrame:
     return pd.read_sql(GET_LEA_STUDENTS, adapter.engine.connect())
@@ -44,16 +51,6 @@ def _get_school_students(adapter: Adapter) -> pd.DataFrame:
 def _prepare_for_charts() -> None:
     plt.style.use("ggplot")
     sns.set_theme(style="darkgrid")
-
-
-DEMOGRAPHIC_RACE = "Race"
-DEMOGRAPHIC_LATINX = "IsHispanic"
-DEMOGRAPHIC_ENGLISH = "LimitedEnglishProficiency"
-DEMOGRAPHIC_SEX = "Sex"
-DEMOGRAPHIC_DISABILITY = "Disability"
-DEMOGRAPHIC_LANGUAGE = "Language"
-DEMOGRAPHIC_TRIBAL = "TribalAffiliation"
-
 
 def _exec_anova(
     students: pd.DataFrame, demographic: str, measure_label: str, measure: str
@@ -152,6 +149,18 @@ to give a sense of the overall effect size."""
 
 
 def run_analysis(adapter: Adapter, ed_org_level: str, measure: str) -> None:
+    """
+    Orchestrates execution of the designated analysis.
+
+    Parameters
+    ----------
+    adapter: Adapter
+        An MSSQL adapter
+    ed_org_level: str
+        Either "school" or "Lea"
+    measure: str
+        The measure to calculate, e.g Course Performance or Attendance Rate, etc.
+    """
     _prepare_for_charts()
 
     try:

@@ -35,9 +35,9 @@ def run_anova(students: pd.DataFrame, demographic: str, measure_label: str) -> b
     students: DataFrame
         Must have been created from data loaded by the accompanying SQL script
     demographic: str
-        One of: Race,
-    stat: str
-        One of: AverageGrade,
+        The demographic to analyze
+    measure_label: str
+        The measure label to analyze
     """
 
     not_null = students[measure_label].notna()
@@ -145,6 +145,18 @@ def _calc_cohens_d(sample_1: pd.Series, sample_2: pd.Series) -> Tuple[str, str]:
     For example, it would not be appropriate to use this in comparing Hispanic/Latino Ethnicity
     to Sex, because these are not independent. It would also not be appropriate with race,
     since one student can have multiple race associations.
+
+    Parameters
+    ----------
+    sample_1: Series
+        Sample 1 of 2 for comparison
+    sample_2: Series
+        Sample 2 of 2 for comparison
+
+    Returns
+    -------
+    Tuple: (str, str)
+        The first value is the effect size as a number, and the second is a text description of the impact
     """
     n1 = sample_1.count()
     m1 = sample_1.mean()
@@ -186,9 +198,9 @@ def run_t_test(
     students: DataFrame
         Must have been created from data loaded by the accompanying SQL script
     demographic: str
-        One of: Race,
-    stat: str
-        One of: AverageGrade
+        The demographic to analyze
+    measure_label: str
+        The measure label to analyze
     """
 
     not_null = students[measure_label].notna()
@@ -273,9 +285,9 @@ def create_box_plots(
     students: DataFrame
         Must have been created from data loaded by the accompanying SQL script
     demographic: str
-        A demographic from the data set
-    stat: str
-        A statistic from the data set
+        The demographic to analyze
+    measure_label: str
+        The measure label to analyze
     title: str
         Chart title
     """
@@ -302,12 +314,15 @@ def create_box_plots(
     plt.show()
 
 
-def wrap_labels(plt: plt.plot):
+def wrap_labels(plt: plt.plot) -> None:
     """
     Improve x-axis labels with line wrapping. Courtesy of
     https://medium.com/dunder-data/automatically-wrap-graph-labels-in-matplotlib-and-seaborn-a48740bc9ce
 
-
+    Parameters
+    ----------
+    plt: plot
+        A Matlib plot
     """
     ax = plt.gca()
 
