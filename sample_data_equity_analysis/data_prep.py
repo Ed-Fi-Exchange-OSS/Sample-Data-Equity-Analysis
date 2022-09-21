@@ -47,6 +47,8 @@ DROP_SCHEMA = """
 DROP SCHEMA edfi_dei;
 """
 
+COUNT_SCHOOL = "SELECT count(1) FROM analytics.StudentSchoolDemographicsBridge"
+COUNT_LEA = "SELECT count(1) FROM analytics.StudentLocalEducationAgencyDemographicsBridge"
 
 def run_prep_file(adapter: Adapter) -> None:
     adapter.execute_script(
@@ -56,3 +58,9 @@ def run_prep_file(adapter: Adapter) -> None:
 
 def cleanup_database(adapter: Adapter) -> None:
     adapter.execute_script([DROP_LEA_STUDENTS, DROP_SCHOOL_STUDENTS, DROP_SCHEMA])
+
+def get_school_demographics_count(adapter: Adapter) -> int:
+    return adapter.get_int(COUNT_SCHOOL)
+
+def get_lea_demographics_count(adapter: Adapter) -> int:
+    return adapter.get_int(COUNT_LEA)

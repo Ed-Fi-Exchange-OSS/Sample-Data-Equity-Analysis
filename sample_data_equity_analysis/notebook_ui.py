@@ -5,7 +5,7 @@
 
 import os
 from typing import Any, Callable, Optional
-from IPython.display import display, Markdown, HTML
+from IPython.display import display, HTML
 import ipywidgets as widgets
 
 from edfi_sql_adapter.sql_adapter import (
@@ -15,7 +15,12 @@ from edfi_sql_adapter.sql_adapter import (
 )
 
 from sample_data_equity_analysis.connection_parameters import ConnectionParameters
-from sample_data_equity_analysis.data_prep import run_prep_file, cleanup_database
+from sample_data_equity_analysis.data_prep import (
+    run_prep_file,
+    cleanup_database,
+    get_school_demographics_count,
+    get_lea_demographics_count,
+)
 from sample_data_equity_analysis.utilities import (
     log_info,
     log_error,
@@ -200,6 +205,14 @@ are:</p>
 
 def setup_analysis_options() -> None:
     log_message("## Choose What to Analyze")
+
+    tip = f"""
+💡 Tip: your ODS database contains **{get_school_demographics_count(_get_db_adapter())}
+School** demographic records and **{get_lea_demographics_count(_get_db_adapter())}
+LEA** demographic records.
+"""
+    log_message(tip)
+
     ed_org = widgets.RadioButtons(
         options=[Constants.SCHOOL, Constants.LEA], description="Student relationship:"
     )
