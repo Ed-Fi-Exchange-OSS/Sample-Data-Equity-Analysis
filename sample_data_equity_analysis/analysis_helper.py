@@ -73,8 +73,8 @@ still appear in the boxplot for visual inspection: {excluded}."""
     labels = pd.unique(included[demographic].values)
 
     stat_by_demographic = {
-        l: students[(students[demographic] == l) & not_null][measure_label]
-        for l in labels
+        label: students[(students[demographic] == label) & not_null][measure_label]
+        for label in labels
     }
     data = stat_by_demographic.values()
     _stat, p_value = scipy.stats.f_oneway(*data)

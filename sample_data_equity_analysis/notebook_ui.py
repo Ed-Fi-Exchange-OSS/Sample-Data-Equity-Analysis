@@ -144,7 +144,7 @@ def setup_database_prep() -> None:
     )
     display(
         HTML(
-            f"""
+            """
 <details>
 <summary>▶ <span style="color: blue">Help for database settings</span></summary>
 <p>For Windows integrated security, leave the username blank. The password can only

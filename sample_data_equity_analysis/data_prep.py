@@ -6,7 +6,6 @@
 import os
 from edfi_sql_adapter.sql_adapter import Adapter
 
-from sample_data_equity_analysis.connection_parameters import ConnectionParameters
 
 SQL_FILE = "data_prep.sql"
 
@@ -21,25 +20,25 @@ IF NOT EXISTS (
     select 1 from INFORMATION_SCHEMA.SCHEMATA where schema_name = 'edfi_dei'
 )
 BEGIN
-	EXEC('create schema edfi_dei authorization [dbo];');
+    EXEC('create schema edfi_dei authorization [dbo];');
 END
 """
 
 DROP_LEA_STUDENTS = """
 IF EXISTS (
-	select 1 from INFORMATION_SCHEMA.TABLES where table_schema = 'edfi_dei' and table_name = 'leaStudents'
+    select 1 from INFORMATION_SCHEMA.TABLES where table_schema = 'edfi_dei' and table_name = 'leaStudents'
 )
 BEGIN
-	DROP TABLE edfi_dei.leaStudents
+    DROP TABLE edfi_dei.leaStudents
 END;
 """
 
 DROP_SCHOOL_STUDENTS = """
 IF EXISTS (
-	select 1 from INFORMATION_SCHEMA.TABLES where table_schema = 'edfi_dei' and table_name = 'schoolStudents'
+    select 1 from INFORMATION_SCHEMA.TABLES where table_schema = 'edfi_dei' and table_name = 'schoolStudents'
 )
 BEGIN
-	DROP TABLE edfi_dei.schoolStudents
+    DROP TABLE edfi_dei.schoolStudents
 END
 """
 
@@ -48,7 +47,10 @@ DROP SCHEMA edfi_dei;
 """
 
 COUNT_SCHOOL = "SELECT count(1) FROM analytics.StudentSchoolDemographicsBridge"
-COUNT_LEA = "SELECT count(1) FROM analytics.StudentLocalEducationAgencyDemographicsBridge"
+COUNT_LEA = (
+    "SELECT count(1) FROM analytics.StudentLocalEducationAgencyDemographicsBridge"
+)
+
 
 def run_prep_file(adapter: Adapter) -> None:
     """
@@ -75,6 +77,7 @@ def cleanup_database(adapter: Adapter) -> None:
     """
     adapter.execute_script([DROP_LEA_STUDENTS, DROP_SCHOOL_STUDENTS, DROP_SCHEMA])
 
+
 def get_school_demographics_count(adapter: Adapter) -> int:
     """
     Gets the count of all School Demographics rows.
@@ -85,6 +88,7 @@ def get_school_demographics_count(adapter: Adapter) -> int:
         An MSSQL adapter
     """
     return adapter.get_int(COUNT_SCHOOL)
+
 
 def get_lea_demographics_count(adapter: Adapter) -> int:
     """

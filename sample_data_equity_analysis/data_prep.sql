@@ -33,7 +33,7 @@ Approach:
     school, and another using the relationship with the local education agency.
   - These queries must account for the fact that a student could have multiple
     relationships, for example could be connected to two different schools.
-	Furthermore, they could have separate demographics at these different schools.
+    Furthermore, they could have separate demographics at these different schools.
 */
 
 /*
@@ -57,216 +57,216 @@ Approach:
 -- DROP TABLE edfi_dei.leaStudents
 
 create table edfi_dei.leaStudents (
-	LocalEducationAgencyKey VARCHAR(1000),
-	StudentLocalEducationAgencyKey VARCHAR(1000),
-	StudentKey VARCHAR(1000),
-	LimitedEnglishProficiency VARCHAR(3) DEFAULT (''),
-	IsHispanic VARCHAR(3) DEFAULT (''),
-	Sex VARCHAR(1000) DEFAULT (''),
-	Race VARCHAR(1000) DEFAULT (''),
-	Disability VARCHAR(1000) DEFAULT (''),
-	[Language] VARCHAR(1000) DEFAULT (''),
-	TribalAffiliation VARCHAR(1000) DEFAULT (''),
-	NumberDisciplineIncidents INT NOT NULL DEFAULT (0),
-	AverageGrade DECIMAL(6,3),
-	AttendanceRate DECIMAL(6,3),
-	AssessmentScore DECIMAL(6,3)
+    LocalEducationAgencyKey VARCHAR(1000),
+    StudentLocalEducationAgencyKey VARCHAR(1000),
+    StudentKey VARCHAR(1000),
+    LimitedEnglishProficiency VARCHAR(3) DEFAULT (''),
+    IsHispanic VARCHAR(3) DEFAULT (''),
+    Sex VARCHAR(1000) DEFAULT (''),
+    Race VARCHAR(1000) DEFAULT (''),
+    Disability VARCHAR(1000) DEFAULT (''),
+    [Language] VARCHAR(1000) DEFAULT (''),
+    TribalAffiliation VARCHAR(1000) DEFAULT (''),
+    NumberDisciplineIncidents INT NOT NULL DEFAULT (0),
+    AverageGrade DECIMAL(6,3),
+    AttendanceRate DECIMAL(6,3),
+    AssessmentScore DECIMAL(6,3)
 );
 
 
 with race as (
-	select
-		StudentLocalEducationAgencyKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentLocalEducationAgencyDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'Race'
+    select
+        StudentLocalEducationAgencyKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentLocalEducationAgencyDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'Race'
 ), disability as (
-	select
-		StudentLocalEducationAgencyKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentLocalEducationAgencyDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'Disability'
+    select
+        StudentLocalEducationAgencyKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentLocalEducationAgencyDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'Disability'
 ), [language] as (
-	select
-		StudentLocalEducationAgencyKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentLocalEducationAgencyDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'Language'
+    select
+        StudentLocalEducationAgencyKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentLocalEducationAgencyDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'Language'
 ), tribalAffiliation as (
-	select
-		StudentLocalEducationAgencyKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentLocalEducationAgencyDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'TribalAffiliation'
+    select
+        StudentLocalEducationAgencyKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentLocalEducationAgencyDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'TribalAffiliation'
 )
 insert into edfi_dei.leaStudents (
-	LocalEducationAgencyKey,
-	StudentLocalEducationAgencyKey,
-	StudentKey,
-	LimitedEnglishProficiency,
-	IsHispanic,
-	Sex,
-	Race,
-	Disability,
-	[Language],
-	TribalAffiliation
+    LocalEducationAgencyKey,
+    StudentLocalEducationAgencyKey,
+    StudentKey,
+    LimitedEnglishProficiency,
+    IsHispanic,
+    Sex,
+    Race,
+    Disability,
+    [Language],
+    TribalAffiliation
 )
 select
-	student.LocalEducationAgencyKey,
-	student.StudentLocalEducationAgencyKey,
-	student.StudentKey,
-	CASE WHEN student.LimitedEnglishProficiency = 'Not Applicable' THEN 'No'
-	     ELSE 'Yes' END,
-	CASE WHEN student.IsHispanic = 1 THEN 'Yes' ELSE 'No' END,
-	student.Sex,
-	race.DemographicLabel as Race,
-	disability.DemographicLabel as Disability,
-	[language].DemographicLabel as [Language],
-	tribalAffiliation.DemographicLabel as TribalAffiliation
+    student.LocalEducationAgencyKey,
+    student.StudentLocalEducationAgencyKey,
+    student.StudentKey,
+    CASE WHEN student.LimitedEnglishProficiency = 'Not Applicable' THEN 'No'
+         ELSE 'Yes' END,
+    CASE WHEN student.IsHispanic = 1 THEN 'Yes' ELSE 'No' END,
+    student.Sex,
+    race.DemographicLabel as Race,
+    disability.DemographicLabel as Disability,
+    [language].DemographicLabel as [Language],
+    tribalAffiliation.DemographicLabel as TribalAffiliation
 from
-	analytics.StudentLocalEducationAgencyDim student
+    analytics.StudentLocalEducationAgencyDim student
 left outer join
-	race
+    race
 on
-	student.StudentLocalEducationAgencyKey = race.StudentLocalEducationAgencyKey
+    student.StudentLocalEducationAgencyKey = race.StudentLocalEducationAgencyKey
 left outer join
-	disability
+    disability
 on
-	student.StudentLocalEducationAgencyKey = disability.StudentLocalEducationAgencyKey
+    student.StudentLocalEducationAgencyKey = disability.StudentLocalEducationAgencyKey
 left outer join
-	[language]
+    [language]
 on
-	student.StudentLocalEducationAgencyKey = [language].StudentLocalEducationAgencyKey
+    student.StudentLocalEducationAgencyKey = [language].StudentLocalEducationAgencyKey
 left outer join
-	tribalAffiliation
+    tribalAffiliation
 on
-	student.StudentLocalEducationAgencyKey = tribalAffiliation.StudentLocalEducationAgencyKey;
+    student.StudentLocalEducationAgencyKey = tribalAffiliation.StudentLocalEducationAgencyKey;
 
 
 ---Let's look at average number of discipline incidents for a student across
 -- all schools in the district.
 --
 with incidenceCounts as (
-	select
-		students.StudentLocalEducationAgencyKey,
-		SUM(CASE WHEN discipline.StudentKey IS NOT NULL THEN 1 ELSE 0 END) as NumberOfIncidents
-	from
-		edfi_dei.leaStudents students
-	inner join
-		analytics.SchoolDim school
-	on
-		students.LocalEducationAgencyKey = school.LocalEducationAgencyKey
-	left outer join
-		analytics.equity_StudentDisciplineActionDim discipline
-	on
-		students.StudentKey = discipline.StudentKey
-	and
-		school.SchoolKey = discipline.SchoolKey
-	group by
-		students.StudentLocalEducationAgencyKey
+    select
+        students.StudentLocalEducationAgencyKey,
+        SUM(CASE WHEN discipline.StudentKey IS NOT NULL THEN 1 ELSE 0 END) as NumberOfIncidents
+    from
+        edfi_dei.leaStudents students
+    inner join
+        analytics.SchoolDim school
+    on
+        students.LocalEducationAgencyKey = school.LocalEducationAgencyKey
+    left outer join
+        analytics.equity_StudentDisciplineActionDim discipline
+    on
+        students.StudentKey = discipline.StudentKey
+    and
+        school.SchoolKey = discipline.SchoolKey
+    group by
+        students.StudentLocalEducationAgencyKey
 )
 update
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 set
-	NumberDisciplineIncidents = ic.NumberOfIncidents
+    NumberDisciplineIncidents = ic.NumberOfIncidents
 from
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 inner join
-	incidenceCounts ic
+    incidenceCounts ic
 on
-	edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey;
+    edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey;
 
 
 
 -- Average grade for a student across all schools in the district.
 --
 with grades as (
-	select
-		students.StudentLocalEducationAgencyKey,
-		AVG(grade.NumericGradeEarned) as AvgNumericGradeEarned
-	from
-		edfi_dei.leaStudents students
-	inner join
-		analytics.SchoolDim school
-	on
-		students.LocalEducationAgencyKey = school.LocalEducationAgencyKey
-	left outer join
-		analytics.ews_StudentSectionGradeFact grade
-	on
-		students.StudentKey = grade.StudentKey
-	and
-		school.SchoolKey = grade.SchoolKey
-	group by
-		students.StudentLocalEducationAgencyKey
+    select
+        students.StudentLocalEducationAgencyKey,
+        AVG(grade.NumericGradeEarned) as AvgNumericGradeEarned
+    from
+        edfi_dei.leaStudents students
+    inner join
+        analytics.SchoolDim school
+    on
+        students.LocalEducationAgencyKey = school.LocalEducationAgencyKey
+    left outer join
+        analytics.ews_StudentSectionGradeFact grade
+    on
+        students.StudentKey = grade.StudentKey
+    and
+        school.SchoolKey = grade.SchoolKey
+    group by
+        students.StudentLocalEducationAgencyKey
 )
 update
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 set
-	AverageGrade = ic.AvgNumericGradeEarned
+    AverageGrade = ic.AvgNumericGradeEarned
 from
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 inner join
-	grades ic
+    grades ic
 on
-	edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey;
+    edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey;
 
 
 -- Attendance rate
 --
 with attendance as (
-	select
-		students.StudentLocalEducationAgencyKey,
-		SUM(CASE WHEN attendance.ReportedAsAbsentFromAnySection + attendance.ReportedAsAbsentFromHomeRoom + attendance.ReportedAsAbsentFromSchool > 0 THEN 1.0 ELSE 0.0 END) as DaysAbsent,
-		COUNT(1.0) as EnrolledDays
-	from
-		edfi_dei.leaStudents students
-	inner join
-		analytics.SchoolDim school
-	on
-		students.LocalEducationAgencyKey = school.LocalEducationAgencyKey
-	left outer join
-		analytics.chrab_ChronicAbsenteeismAttendanceFact attendance
-	on
-		students.StudentKey = attendance.StudentKey
-	and
-		school.SchoolKey = attendance.SchoolKey
-	group by
-		students.StudentLocalEducationAgencyKey
+    select
+        students.StudentLocalEducationAgencyKey,
+        SUM(CASE WHEN attendance.ReportedAsAbsentFromAnySection + attendance.ReportedAsAbsentFromHomeRoom + attendance.ReportedAsAbsentFromSchool > 0 THEN 1.0 ELSE 0.0 END) as DaysAbsent,
+        COUNT(1.0) as EnrolledDays
+    from
+        edfi_dei.leaStudents students
+    inner join
+        analytics.SchoolDim school
+    on
+        students.LocalEducationAgencyKey = school.LocalEducationAgencyKey
+    left outer join
+        analytics.chrab_ChronicAbsenteeismAttendanceFact attendance
+    on
+        students.StudentKey = attendance.StudentKey
+    and
+        school.SchoolKey = attendance.SchoolKey
+    group by
+        students.StudentLocalEducationAgencyKey
 )
 update
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 set
-	AttendanceRate = (EnrolledDays - DaysAbsent)/EnrolledDays
+    AttendanceRate = (EnrolledDays - DaysAbsent)/EnrolledDays
 from
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 inner join
-	attendance ic
+    attendance ic
 on
-	edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey
+    edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey
 
 ;
 
@@ -275,78 +275,78 @@ on
 --
 -- look at individual objectives
 with assessments as (
-	select
-		Student.StudentUniqueId as StudentKey,
-		StudentAssessmentStudentObjectiveAssessmentScoreResult.Result,
-		ObjectiveAssessment.MaxRawScore,
-		case when
-						try_cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) is null
-					then null
-					else cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) / ObjectiveAssessment.MaxRawScore
-		end as PercentScore
-	from
-		edfi.StudentAssessmentStudentObjectiveAssessment
+    select
+        Student.StudentUniqueId as StudentKey,
+        StudentAssessmentStudentObjectiveAssessmentScoreResult.Result,
+        ObjectiveAssessment.MaxRawScore,
+        case when
+                        try_cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) is null
+                    then null
+                    else cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) / ObjectiveAssessment.MaxRawScore
+        end as PercentScore
+    from
+        edfi.StudentAssessmentStudentObjectiveAssessment
 
-	inner join
-		edfi.StudentAssessmentStudentObjectiveAssessmentScoreResult
-	on
-		StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.AssessmentIdentifier
-	and
-		StudentAssessmentStudentObjectiveAssessment.IdentificationCode = StudentAssessmentStudentObjectiveAssessmentScoreResult.IdentificationCode
-	and
-		StudentAssessmentStudentObjectiveAssessment.Namespace = StudentAssessmentStudentObjectiveAssessmentScoreResult.Namespace
-	and
-		StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentAssessmentIdentifier
-	and
-		StudentAssessmentStudentObjectiveAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentUSI
+    inner join
+        edfi.StudentAssessmentStudentObjectiveAssessmentScoreResult
+    on
+        StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.AssessmentIdentifier
+    and
+        StudentAssessmentStudentObjectiveAssessment.IdentificationCode = StudentAssessmentStudentObjectiveAssessmentScoreResult.IdentificationCode
+    and
+        StudentAssessmentStudentObjectiveAssessment.Namespace = StudentAssessmentStudentObjectiveAssessmentScoreResult.Namespace
+    and
+        StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentAssessmentIdentifier
+    and
+        StudentAssessmentStudentObjectiveAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentUSI
 
-	inner join
-		edfi.StudentAssessment
-	on
-		StudentAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier
-	AND
-		StudentAssessment.Namespace = StudentAssessmentStudentObjectiveAssessment.Namespace
-	AND
-		StudentAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier
-	AND
-		StudentAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessment.StudentUSI
+    inner join
+        edfi.StudentAssessment
+    on
+        StudentAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier
+    AND
+        StudentAssessment.Namespace = StudentAssessmentStudentObjectiveAssessment.Namespace
+    AND
+        StudentAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier
+    AND
+        StudentAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessment.StudentUSI
 
-	inner join
-		edfi.ObjectiveAssessment
-	on
-		StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = ObjectiveAssessment.AssessmentIdentifier
-	and
-		StudentAssessmentStudentObjectiveAssessment.Namespace = ObjectiveAssessment.Namespace
-	and
-		StudentAssessmentStudentObjectiveAssessment.IdentificationCode = ObjectiveAssessment.IdentificationCode
+    inner join
+        edfi.ObjectiveAssessment
+    on
+        StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = ObjectiveAssessment.AssessmentIdentifier
+    and
+        StudentAssessmentStudentObjectiveAssessment.Namespace = ObjectiveAssessment.Namespace
+    and
+        StudentAssessmentStudentObjectiveAssessment.IdentificationCode = ObjectiveAssessment.IdentificationCode
 
-	inner join
-		edfi.Student
-	on
-		StudentAssessment.StudentUSI = Student.StudentUSI
+    inner join
+        edfi.Student
+    on
+        StudentAssessment.StudentUSI = Student.StudentUSI
 ), students as (
-	select
-		students.StudentLocalEducationAgencyKey,
-		AVG(PercentScore) as AvgPercentScore
-	from
-		assessments
-	inner join
-		edfi_dei.leaStudents students
-	on
-		assessments.StudentKey = students.StudentKey
-	group by
-		students.StudentLocalEducationAgencyKey
+    select
+        students.StudentLocalEducationAgencyKey,
+        AVG(PercentScore) as AvgPercentScore
+    from
+        assessments
+    inner join
+        edfi_dei.leaStudents students
+    on
+        assessments.StudentKey = students.StudentKey
+    group by
+        students.StudentLocalEducationAgencyKey
 )
 update
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 set
-	AssessmentScore = AvgPercentScore
+    AssessmentScore = AvgPercentScore
 from
-	edfi_dei.leaStudents
+    edfi_dei.leaStudents
 inner join
-	students ic
+    students ic
 on
-	edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey
+    edfi_dei.leaStudents.StudentLocalEducationAgencyKey = ic.StudentLocalEducationAgencyKey
 
 ;
 
@@ -359,199 +359,199 @@ on
 -- DROP TABLE edfi_dei.schoolStudents
 
 create table edfi_dei.schoolStudents (
-	SchoolKey VARCHAR(1000),
-	StudentSchoolKey VARCHAR(1000),
-	StudentKey VARCHAR(1000),
-	LimitedEnglishProficiency VARCHAR(3) DEFAULT (''),
-	IsHispanic VARCHAR(3) DEFAULT (''),
-	Sex VARCHAR(1000) DEFAULT (''),
-	Race VARCHAR(1000) DEFAULT (''),
-	Disability VARCHAR(1000) DEFAULT (''),
-	[Language] VARCHAR(1000) DEFAULT (''),
-	TribalAffiliation VARCHAR(1000) DEFAULT (''),
-	NumberDisciplineIncidents INT NOT NULL DEFAULT (0),
-	AverageGrade DECIMAL(6,3),
-	AttendanceRate DECIMAL(6,3),
-	AssessmentScore DECIMAL(6,3)
+    SchoolKey VARCHAR(1000),
+    StudentSchoolKey VARCHAR(1000),
+    StudentKey VARCHAR(1000),
+    LimitedEnglishProficiency VARCHAR(3) DEFAULT (''),
+    IsHispanic VARCHAR(3) DEFAULT (''),
+    Sex VARCHAR(1000) DEFAULT (''),
+    Race VARCHAR(1000) DEFAULT (''),
+    Disability VARCHAR(1000) DEFAULT (''),
+    [Language] VARCHAR(1000) DEFAULT (''),
+    TribalAffiliation VARCHAR(1000) DEFAULT (''),
+    NumberDisciplineIncidents INT NOT NULL DEFAULT (0),
+    AverageGrade DECIMAL(6,3),
+    AttendanceRate DECIMAL(6,3),
+    AssessmentScore DECIMAL(6,3)
 );
 
 with race as (
-	select
-		StudentSchoolKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentSchoolDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'Race'
+    select
+        StudentSchoolKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentSchoolDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'Race'
 ), disability as (
-	select
-		StudentSchoolKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentSchoolDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'Disability'
+    select
+        StudentSchoolKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentSchoolDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'Disability'
 ), [language] as (
-	select
-		StudentSchoolKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentSchoolDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'Language'
+    select
+        StudentSchoolKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentSchoolDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'Language'
 ), tribalAffiliation as (
-	select
-		StudentSchoolKey,
-		demographics.DemographicLabel
-	from
-		analytics.StudentSchoolDemographicsBridge bridge
-	inner join
-		analytics.DemographicDim demographics
-	on
-		bridge.DemographicKey = demographics.DemographicKey
-	where
-		demographics.DemographicParentKey = 'TribalAffiliation'
+    select
+        StudentSchoolKey,
+        demographics.DemographicLabel
+    from
+        analytics.StudentSchoolDemographicsBridge bridge
+    inner join
+        analytics.DemographicDim demographics
+    on
+        bridge.DemographicKey = demographics.DemographicKey
+    where
+        demographics.DemographicParentKey = 'TribalAffiliation'
 )
 insert into edfi_dei.schoolStudents (
-	SchoolKey,
-	StudentSchoolKey,
-	StudentKey,
-	LimitedEnglishProficiency,
-	IsHispanic,
-	Sex,
-	Race,
-	Disability,
-	[Language],
-	TribalAffiliation
+    SchoolKey,
+    StudentSchoolKey,
+    StudentKey,
+    LimitedEnglishProficiency,
+    IsHispanic,
+    Sex,
+    Race,
+    Disability,
+    [Language],
+    TribalAffiliation
 )
 select
-	student.SchoolKey,
-	student.StudentSchoolKey,
-	student.StudentKey,
-	CASE WHEN student.LimitedEnglishProficiency = 'Not Applicable' THEN 'No'
-	     ELSE 'Yes' END,
-	CASE WHEN student.IsHispanic = 1 THEN 'Yes' ELSE 'No' END,
-	student.Sex,
-	race.DemographicLabel as Race,
-	disability.DemographicLabel as Disability,
-	[language].DemographicLabel as [Language],
-	tribalAffiliation.DemographicLabel as TribalAffiliation
+    student.SchoolKey,
+    student.StudentSchoolKey,
+    student.StudentKey,
+    CASE WHEN student.LimitedEnglishProficiency = 'Not Applicable' THEN 'No'
+         ELSE 'Yes' END,
+    CASE WHEN student.IsHispanic = 1 THEN 'Yes' ELSE 'No' END,
+    student.Sex,
+    race.DemographicLabel as Race,
+    disability.DemographicLabel as Disability,
+    [language].DemographicLabel as [Language],
+    tribalAffiliation.DemographicLabel as TribalAffiliation
 from
-	analytics.StudentSchoolDim student
+    analytics.StudentSchoolDim student
 left outer join
-	race
+    race
 on
-	student.StudentSchoolKey = race.StudentSchoolKey
+    student.StudentSchoolKey = race.StudentSchoolKey
 left outer join
-	disability
+    disability
 on
-	student.StudentSchoolKey = disability.StudentSchoolKey
+    student.StudentSchoolKey = disability.StudentSchoolKey
 left outer join
-	[language]
+    [language]
 on
-	student.StudentSchoolKey = [language].StudentSchoolKey
+    student.StudentSchoolKey = [language].StudentSchoolKey
 left outer join
-	tribalAffiliation
+    tribalAffiliation
 on
-	student.StudentSchoolKey = tribalAffiliation.StudentSchoolKey;
+    student.StudentSchoolKey = tribalAffiliation.StudentSchoolKey;
 
 
 ---Let's look at average number of discipline incidents for a student across
 -- all schools in the district.
 --
 with incidenceCounts as (
-	select
-		students.StudentSchoolKey,
-		SUM(CASE WHEN discipline.StudentKey IS NOT NULL THEN 1 ELSE 0 END) as NumberOfIncidents
-	from
-		edfi_dei.schoolStudents students
-	inner join
-		analytics.equity_StudentDisciplineActionDim discipline
-	on
-		students.StudentSchoolKey = discipline.StudentSchoolKey
-	group by
-		students.StudentSchoolKey
+    select
+        students.StudentSchoolKey,
+        SUM(CASE WHEN discipline.StudentKey IS NOT NULL THEN 1 ELSE 0 END) as NumberOfIncidents
+    from
+        edfi_dei.schoolStudents students
+    inner join
+        analytics.equity_StudentDisciplineActionDim discipline
+    on
+        students.StudentSchoolKey = discipline.StudentSchoolKey
+    group by
+        students.StudentSchoolKey
 )
 update
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 set
-	NumberDisciplineIncidents = ic.NumberOfIncidents
+    NumberDisciplineIncidents = ic.NumberOfIncidents
 from
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 inner join
-	incidenceCounts ic
+    incidenceCounts ic
 on
-	edfi_dei.schoolStudents.StudentSchoolKey = ic.StudentSchoolKey;
+    edfi_dei.schoolStudents.StudentSchoolKey = ic.StudentSchoolKey;
 
 
 
 -- Average grade for a student across all schools in the district.
 --
 with grades as (
-	select
-		students.StudentSchoolKey,
-		AVG(grade.NumericGradeEarned) as AvgNumericGradeEarned
-	from
-		edfi_dei.schoolStudents students
-	inner join
-		analytics.ews_StudentSectionGradeFact grade
-	on
-		students.StudentKey = grade.StudentKey
-	and
-		students.SchoolKey = grade.SchoolKey
-	group by
-		students.StudentSchoolKey
+    select
+        students.StudentSchoolKey,
+        AVG(grade.NumericGradeEarned) as AvgNumericGradeEarned
+    from
+        edfi_dei.schoolStudents students
+    inner join
+        analytics.ews_StudentSectionGradeFact grade
+    on
+        students.StudentKey = grade.StudentKey
+    and
+        students.SchoolKey = grade.SchoolKey
+    group by
+        students.StudentSchoolKey
 )
 update
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 set
-	AverageGrade = ic.AvgNumericGradeEarned
+    AverageGrade = ic.AvgNumericGradeEarned
 from
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 inner join
-	grades ic
+    grades ic
 on
-	edfi_dei.schoolStudents.StudentSchoolKey = ic.StudentSchoolKey;
+    edfi_dei.schoolStudents.StudentSchoolKey = ic.StudentSchoolKey;
 
 
 -- Attendance rate
 --
 with attendance as (
-	select
-		students.StudentSchoolKey,
-		SUM(CASE WHEN attendance.ReportedAsAbsentFromAnySection + attendance.ReportedAsAbsentFromHomeRoom + attendance.ReportedAsAbsentFromSchool > 0 THEN 1.0 ELSE 0.0 END) as DaysAbsent,
-		COUNT(1.0) as EnrolledDays
-	from
-		edfi_dei.schoolStudents students
-	inner join
-		analytics.chrab_ChronicAbsenteeismAttendanceFact attendance
-	on
-		students.StudentSchoolKey = attendance.StudentSchoolKey
-	group by
-		students.StudentSchoolKey
+    select
+        students.StudentSchoolKey,
+        SUM(CASE WHEN attendance.ReportedAsAbsentFromAnySection + attendance.ReportedAsAbsentFromHomeRoom + attendance.ReportedAsAbsentFromSchool > 0 THEN 1.0 ELSE 0.0 END) as DaysAbsent,
+        COUNT(1.0) as EnrolledDays
+    from
+        edfi_dei.schoolStudents students
+    inner join
+        analytics.chrab_ChronicAbsenteeismAttendanceFact attendance
+    on
+        students.StudentSchoolKey = attendance.StudentSchoolKey
+    group by
+        students.StudentSchoolKey
 )
 update
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 set
-	AttendanceRate = (EnrolledDays - DaysAbsent)/EnrolledDays
+    AttendanceRate = (EnrolledDays - DaysAbsent)/EnrolledDays
 from
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 inner join
-	attendance ic
+    attendance ic
 on
-	edfi_dei.schoolStudents.StudentSchoolKey = ic.studentSchoolKey
+    edfi_dei.schoolStudents.StudentSchoolKey = ic.studentSchoolKey
 
 ;
 
@@ -560,77 +560,77 @@ on
 --
 -- look at individual objectives
 with assessments as (
-	select
-		Student.StudentUniqueId as StudentKey,
-		StudentAssessmentStudentObjectiveAssessmentScoreResult.Result,
-		ObjectiveAssessment.MaxRawScore,
-		case when
-						try_cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) is null
-					then null
-					else cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) / ObjectiveAssessment.MaxRawScore
-		end as PercentScore
-	from
-		edfi.StudentAssessmentStudentObjectiveAssessment
+    select
+        Student.StudentUniqueId as StudentKey,
+        StudentAssessmentStudentObjectiveAssessmentScoreResult.Result,
+        ObjectiveAssessment.MaxRawScore,
+        case when
+                        try_cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) is null
+                    then null
+                    else cast(StudentAssessmentStudentObjectiveAssessmentScoreResult.Result as decimal) / ObjectiveAssessment.MaxRawScore
+        end as PercentScore
+    from
+        edfi.StudentAssessmentStudentObjectiveAssessment
 
-	inner join
-		edfi.StudentAssessmentStudentObjectiveAssessmentScoreResult
-	on
-		StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.AssessmentIdentifier
-	and
-		StudentAssessmentStudentObjectiveAssessment.IdentificationCode = StudentAssessmentStudentObjectiveAssessmentScoreResult.IdentificationCode
-	and
-		StudentAssessmentStudentObjectiveAssessment.Namespace = StudentAssessmentStudentObjectiveAssessmentScoreResult.Namespace
-	and
-		StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentAssessmentIdentifier
-	and
-		StudentAssessmentStudentObjectiveAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentUSI
+    inner join
+        edfi.StudentAssessmentStudentObjectiveAssessmentScoreResult
+    on
+        StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.AssessmentIdentifier
+    and
+        StudentAssessmentStudentObjectiveAssessment.IdentificationCode = StudentAssessmentStudentObjectiveAssessmentScoreResult.IdentificationCode
+    and
+        StudentAssessmentStudentObjectiveAssessment.Namespace = StudentAssessmentStudentObjectiveAssessmentScoreResult.Namespace
+    and
+        StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentAssessmentIdentifier
+    and
+        StudentAssessmentStudentObjectiveAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessmentScoreResult.StudentUSI
 
-	inner join
-		edfi.StudentAssessment
-	on
-		StudentAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier
-	AND
-		StudentAssessment.Namespace = StudentAssessmentStudentObjectiveAssessment.Namespace
-	AND
-		StudentAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier
-	AND
-		StudentAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessment.StudentUSI
+    inner join
+        edfi.StudentAssessment
+    on
+        StudentAssessment.AssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier
+    AND
+        StudentAssessment.Namespace = StudentAssessmentStudentObjectiveAssessment.Namespace
+    AND
+        StudentAssessment.StudentAssessmentIdentifier = StudentAssessmentStudentObjectiveAssessment.StudentAssessmentIdentifier
+    AND
+        StudentAssessment.StudentUSI = StudentAssessmentStudentObjectiveAssessment.StudentUSI
 
-	inner join
-		edfi.ObjectiveAssessment
-	on
-		StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = ObjectiveAssessment.AssessmentIdentifier
-	and
-		StudentAssessmentStudentObjectiveAssessment.Namespace = ObjectiveAssessment.Namespace
-	and
-		StudentAssessmentStudentObjectiveAssessment.IdentificationCode = ObjectiveAssessment.IdentificationCode
+    inner join
+        edfi.ObjectiveAssessment
+    on
+        StudentAssessmentStudentObjectiveAssessment.AssessmentIdentifier = ObjectiveAssessment.AssessmentIdentifier
+    and
+        StudentAssessmentStudentObjectiveAssessment.Namespace = ObjectiveAssessment.Namespace
+    and
+        StudentAssessmentStudentObjectiveAssessment.IdentificationCode = ObjectiveAssessment.IdentificationCode
 
-	inner join
-		edfi.Student
-	on
-		StudentAssessment.StudentUSI = Student.StudentUSI
+    inner join
+        edfi.Student
+    on
+        StudentAssessment.StudentUSI = Student.StudentUSI
 ), students as (
-	select
-		students.StudentSchoolKey,
-		AVG(PercentScore) as AvgPercentScore
-	from
-		assessments
-	inner join
-		edfi_dei.schoolStudents students
-	on
-		assessments.StudentKey = students.StudentKey
-	group by
-		students.StudentSchoolKey
+    select
+        students.StudentSchoolKey,
+        AVG(PercentScore) as AvgPercentScore
+    from
+        assessments
+    inner join
+        edfi_dei.schoolStudents students
+    on
+        assessments.StudentKey = students.StudentKey
+    group by
+        students.StudentSchoolKey
 )
 update
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 set
-	AssessmentScore = AvgPercentScore
+    AssessmentScore = AvgPercentScore
 from
-	edfi_dei.schoolStudents
+    edfi_dei.schoolStudents
 inner join
-	students ic
+    students ic
 on
-	edfi_dei.schoolStudents.StudentSchoolKey = ic.studentSchoolKey
+    edfi_dei.schoolStudents.StudentSchoolKey = ic.studentSchoolKey
 
 ;
