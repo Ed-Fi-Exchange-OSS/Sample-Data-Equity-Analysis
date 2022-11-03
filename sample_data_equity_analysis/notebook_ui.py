@@ -187,7 +187,7 @@ are:</p>
     )
 
     prepare = widgets.Button(
-        description="Prepare database connection", button_style="primary"
+        description="Prep DB connection", button_style="primary"
     )
 
     output = widgets.Output()

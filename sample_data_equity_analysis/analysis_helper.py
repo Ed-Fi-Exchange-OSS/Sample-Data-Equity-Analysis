@@ -23,7 +23,7 @@ from sample_data_equity_analysis.utilities import (
 )
 
 MAGIC_NUMBER = 30
-
+ALPHA = 0.05
 
 def run_anova(students: pd.DataFrame, demographic: str, measure_label: str) -> bool:
     """
@@ -40,11 +40,11 @@ def run_anova(students: pd.DataFrame, demographic: str, measure_label: str) -> b
         The measure label to analyze
     """
 
-    not_null = students[measure_label].notna()
+    not_null_filter = students[measure_label].notna()
 
     # Test that variances are close enough for running ANOVA
     variances_all = (
-        students[not_null]
+        students[not_null_filter]
         .groupby(by=[demographic], as_index=False)
         .agg({measure_label: "var", "StudentKey": "count"})
     )
@@ -69,14 +69,38 @@ population size of less than {MAGIC_NUMBER}, although they will
 still appear in the boxplot for visual inspection: {excluded}."""
         )
 
+    summary_data = []
+    for d in students[demographic].unique():
+        if d == "":
+            continue
+
+        stats = students[students[demographic] == d][measure_label].describe()
+
+        summary_data.append(
+            {
+                "Label": d,
+                "Count": num_to_string(stats["count"]),
+                "Mean": num_to_string(stats["mean"]),
+                "StD": num_to_string(stats["std"]),
+                "Min": num_to_string(stats["min"]),
+                "Max": num_to_string(stats["max"]),
+            }
+        )
+
+    summary_df = pd.DataFrame(
+        columns=["Label", "Count", "Mean", "StD", "Min", "Max"], data=summary_data
+    )
+    log_dataframe(summary_df)
+
     # ANOVA
     labels = pd.unique(included[demographic].values)
 
     stat_by_demographic = {
-        label: students[(students[demographic] == label) & not_null][measure_label]
+        label: students[(students[demographic] == label) & not_null_filter][measure_label]
         for label in labels
     }
     data = stat_by_demographic.values()
+
     _stat, p_value = scipy.stats.f_oneway(*data)
 
     if p_value == NaN:
@@ -89,14 +113,16 @@ still appear in the boxplot for visual inspection: {excluded}."""
     log_message(
         f"Hypothesis: the difference in {measure_label} by {demographic} is not statistically significant."
     )
-    if p_value > 0.05:
+    if p_value > ALPHA:
         log_info(
             f"Hypothesis upheld: difference is not significant. P value: {num_to_string(p_value)}"
         )
+
     else:
         log_error(
             f"Hypothesis rejected: there is a significant difference. P value: {num_to_string(p_value)}"
         )
+        log_message("Pairwise comparison using Tukey's HSD:")
 
         tukey = scipy.stats.tukey_hsd(*data)
 
@@ -117,19 +143,26 @@ still appear in the boxplot for visual inspection: {excluded}."""
         conf_interval = tukey.confidence_interval()
         for i in range(len(labels)):
             for j in range(len(labels)):
-                if i >= j:  # comparing to self
+                if i == j:  # comparing to self
                     continue
+
+                # Each pair will end up with two results. Only display the result with
+                # positive stat, for consistency
+                if tukey.statistic[i][j] < 0:
+                    continue
+
                 stat = num_to_string(tukey.statistic[i][j])
                 p = num_to_string(tukey.pvalue[i][j])
                 low = num_to_string(conf_interval.low[i][j])
                 high = num_to_string(conf_interval.high[i][j])
-                effect_size = _calc_cohens_d(
+                effect_size = 'n/a' if tukey.pvalue[i][j] >= ALPHA else _calc_cohens_d(
                     stat_by_demographic[labels[i]], stat_by_demographic[labels[j]]
                 )
+
                 rows.append([labels[i], labels[j], stat, p, low, high, effect_size])
 
         tukey_output = pd.DataFrame(columns=columns, data=rows)
-        tukey_output.sort_values(by=["p Value"], inplace=True)
+        tukey_output.sort_values(by=["Label 1"], inplace=True)
         log_dataframe(tukey_output)
 
     return True
@@ -170,7 +203,9 @@ def _calc_cohens_d(sample_1: pd.Series, sample_2: pd.Series) -> Tuple[str, str]:
     d = (abs(m1 - m2)) / s
 
     effect_size = "Very small"
-    if d > 0.01 and d <= 0.2:
+    if d < 0.01:
+        effect_size = "Trivial"
+    elif d > 0.01 and d <= 0.2:
         effect_size = "Small"
     elif d <= 0.5:
         effect_size = "Medium"
@@ -209,6 +244,11 @@ def run_t_test(
     grouped = students[not_null].groupby(by=[demographic], as_index=False)
 
     group_count = grouped.count()
+
+    if group_count.shape[0] < 2:
+        log_info("There is only one value in the data, therefore no need for a comparison.")
+        return
+
     categories = group_count[(group_count["StudentKey"] > MAGIC_NUMBER)][
         demographic
     ].unique()
@@ -230,7 +270,7 @@ def run_t_test(
     log_message(
         f"Hypothesis: the difference in {measure_label} for {demographic} is not statistically significant."
     )
-    if p_value > 0.05:
+    if p_value > ALPHA:
         log_info(
             f"Hypothesis upheld: difference is not significant. P value: {num_to_string(p_value)}"
         )
@@ -252,16 +292,16 @@ def run_t_test(
                 num_to_string(cat_0_stats["count"]),
                 num_to_string(cat_0_stats["mean"]),
                 num_to_string(cat_0_stats["std"]),
-                num_to_string(cat_0_stats["max"]),
                 num_to_string(cat_0_stats["min"]),
+                num_to_string(cat_0_stats["max"]),
             ],
             [
                 categories[1],
                 num_to_string(cat_1_stats["count"]),
                 num_to_string(cat_1_stats["mean"]),
                 num_to_string(cat_1_stats["std"]),
-                num_to_string(cat_1_stats["max"]),
                 num_to_string(cat_1_stats["min"]),
+                num_to_string(cat_1_stats["max"]),
             ],
         ],
     )
