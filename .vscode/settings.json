@@ -87,5 +87,6 @@
         "ANOVA",
         "ipywidgets",
         "Kruskal"
-    ]
+    ],
+    "sarif-viewer.connectToGithubCodeScanning": "off",
 }

@@ -28,6 +28,7 @@ once available.
   poetry run jupyter notebook
   ```
 
+  * ❗ The notebook uses IPyWidgets and does not work well in VS Code.
 * A browser window will open with the Jupyter interface. Select the notebook
   there and follow the instructions in the notebook.
 

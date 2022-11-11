@@ -5,7 +5,6 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import scipy.stats
 import seaborn as sns
 from IPython.display import display
 import ipywidgets as widgets
@@ -13,11 +12,8 @@ import ipywidgets as widgets
 from edfi_sql_adapter.sql_adapter import Adapter
 
 from sample_data_equity_analysis.utilities import (
-    log_info,
     log_error,
-    log_warning,
     log_message,
-    num_to_string,
 )
 from sample_data_equity_analysis.analysis_helper import (
     run_anova,
@@ -40,6 +36,7 @@ DEMOGRAPHIC_DISABILITY = "Disability"
 DEMOGRAPHIC_LANGUAGE = "Language"
 DEMOGRAPHIC_TRIBAL = "TribalAffiliation"
 
+
 def _get_lea_students(adapter: Adapter) -> pd.DataFrame:
     return pd.read_sql(GET_LEA_STUDENTS, adapter.engine.connect())
 
@@ -51,6 +48,7 @@ def _get_school_students(adapter: Adapter) -> pd.DataFrame:
 def _prepare_for_charts() -> None:
     plt.style.use("ggplot")
     sns.set_theme(style="darkgrid")
+
 
 def _exec_anova(
     students: pd.DataFrame, demographic: str, measure_label: str, measure: str
@@ -170,7 +168,7 @@ def run_analysis(adapter: Adapter, ed_org_level: str, measure: str) -> None:
             else _get_lea_students(adapter)
         )
     except Exception as err:
-        log_error(f"Could not load initial data set:")
+        log_error("Could not load initial data set:")
         log_message(f"```{err}```")
         return
 

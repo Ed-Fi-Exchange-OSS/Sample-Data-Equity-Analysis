@@ -144,7 +144,7 @@ def setup_database_prep() -> None:
     )
     display(
         HTML(
-            f"""
+            """
 <details>
 <summary>▶ <span style="color: blue">Help for database settings</span></summary>
 <p>For Windows integrated security, leave the username blank. The password can only
@@ -187,7 +187,7 @@ are:</p>
     )
 
     prepare = widgets.Button(
-        description="Prepare database connection", button_style="primary"
+        description="Prep DB connection", button_style="primary"
     )
 
     output = widgets.Output()
