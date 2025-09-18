@@ -12,8 +12,7 @@ performing rigorous statistical analysis on an ODS database:
 
 * [Ed-Fi Sample Data Equity Analysis](Equity-Analysis.ipynb)
 
-Detailed write-ups will be provided here on all three Ed-Fi sample data sets,
-once available.
+A [report on findings](./report.md) was presented at the Ed-Fi Alliance Summit 2022, focused on the Glendale data set.
 
 ## Getting Started
 
